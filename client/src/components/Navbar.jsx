@@ -3,11 +3,25 @@ import { FaWhatsapp } from 'react-icons/fa';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState('hero');
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
       setIsScrolled(scrollPosition > 50);
+
+      // Update active section based on scroll position
+      const sections = ['hero', 'products', 'about', 'testimonials', 'faq'];
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          if (rect.top <= 100 && rect.bottom >= 100) {
+            setActiveSection(section);
+            break;
+          }
+        }
+      }
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -29,66 +43,96 @@ const Navbar = () => {
     }
   };
 
-  const navLinkStyle = {
-    color: isScrolled ? '#333' : 'white',
+  const navbarStyle = {
+    width: '100%',
+    backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.98)' : 'transparent',
+    backdropFilter: isScrolled ? 'blur(12px)' : 'none',
+    boxShadow: isScrolled ? '0 4px 20px rgba(0,0,0,0.08)' : 'none',
+    position: 'fixed',
+    top: 0,
+    zIndex: 1000,
+    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+    transform: `translateY(${isScrolled ? '0' : '-2px'})`,
+  };
+
+  const containerStyle = {
+    maxWidth: '1400px',
+    margin: '0 auto',
+    height: '70px',
+    display: 'flex',
+    alignItems: 'center',
+    padding: '0 40px',
+    justifyContent: 'space-between'
+  };
+
+  const logoStyle = {
+    height: '45px',
+    transform: 'scale(1)',
+    transition: 'transform 0.3s ease',
+    ':hover': {
+      transform: 'scale(1.05)'
+    }
+  };
+
+  const navLinkStyle = (isActive) => ({
+    color: isScrolled ? '#1F2937' : 'white',
     textDecoration: 'none',
-    fontSize: '14px',
+    fontSize: '15px',
+    fontWeight: '600',
+    letterSpacing: '0.5px',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     padding: '8px 16px',
-    borderRadius: '4px',
+    borderRadius: '6px',
     position: 'relative',
-    fontWeight: '500'
-  };
+    backgroundColor: isActive ? (isScrolled ? 'rgba(200, 76, 48, 0.1)' : 'rgba(255, 255, 255, 0.2)') : 'transparent',
+    transform: `translateY(${isActive ? '-2px' : '0'})`,
+    textShadow: isScrolled ? 'none' : '0 2px 4px rgba(0,0,0,0.2)'
+  });
 
-  const navLinkHoverStyle = {
-    color: '#C84C30',
-    transform: 'translateY(-2px)'
-  };
-
-  const navLinkAfterStyle = {
-    content: '""',
-    position: 'absolute',
-    bottom: '0',
-    left: '50%',
-    width: '0',
-    height: '2px',
+  const buttonStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '12px 24px',
     backgroundColor: '#C84C30',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: '15px',
+    fontWeight: '600',
+    cursor: 'pointer',
     transition: 'all 0.3s ease',
-    transform: 'translateX(-50%)'
-  };
-
-  const navLinkHoverAfterStyle = {
-    width: '80%'
+    boxShadow: '0 4px 12px rgba(200, 76, 48, 0.3)',
+    textDecoration: 'none',
+    transform: 'translateY(0)',
+    ':hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 6px 16px rgba(200, 76, 48, 0.4)',
+      backgroundColor: '#D65A3E'
+    }
   };
 
   return (
-    <nav style={{
-      width: '100%',
-      backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.95)' : 'transparent',
-      backdropFilter: isScrolled ? 'blur(8px)' : 'none',
-      boxShadow: isScrolled ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
-      position: 'fixed',
-      top: 0,
-      zIndex: 1000,
-      transition: 'all 0.3s ease'
-    }}>
-      <div style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        height: '60px',
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0 20px',
-        justifyContent: 'space-between'
-      }}>
+    <nav style={navbarStyle}>
+      <div style={containerStyle}>
         {/* Logo */}
         <a 
           href="#hero" 
           onClick={(e) => scrollToSection('hero', e)}
-          style={{ height: '50px' }}
+          style={{ display: 'flex', alignItems: 'center' }}
         >
-          <img src="/images/logo.jpg" alt="Logo" style={{ height: '100%' }} />
+          <img 
+            src="/images/logo.jpg" 
+            alt="Logo" 
+            style={logoStyle}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'scale(1.05)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'scale(1)';
+            }}
+          />
         </a>
 
         {/* Center Navigation Links */}
@@ -99,158 +143,53 @@ const Navbar = () => {
           justifyContent: 'center',
           flex: '1'
         }}>
-          <a 
-            href="#products" 
-            onClick={(e) => scrollToSection('products', e)}
-            style={navLinkStyle}
-            onMouseEnter={(e) => {
-              e.target.style.color = navLinkHoverStyle.color;
-              e.target.style.transform = navLinkHoverStyle.transform;
-              const after = document.createElement('div');
-              after.style.position = navLinkAfterStyle.position;
-              after.style.bottom = navLinkAfterStyle.bottom;
-              after.style.left = navLinkAfterStyle.left;
-              after.style.width = navLinkHoverAfterStyle.width;
-              after.style.height = navLinkAfterStyle.height;
-              after.style.backgroundColor = navLinkAfterStyle.backgroundColor;
-              after.style.transition = navLinkAfterStyle.transition;
-              after.style.transform = navLinkAfterStyle.transform;
-              e.target.appendChild(after);
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.color = isScrolled ? '#333' : 'white';
-              e.target.style.transform = 'translateY(0)';
-              const after = e.target.querySelector('div');
-              if (after) after.remove();
-            }}
-          >
-            PRODUCTS
-          </a>
-          <a 
-            href="#about" 
-            onClick={(e) => scrollToSection('about', e)}
-            style={navLinkStyle}
-            onMouseEnter={(e) => {
-              e.target.style.color = navLinkHoverStyle.color;
-              e.target.style.transform = navLinkHoverStyle.transform;
-              const after = document.createElement('div');
-              after.style.position = navLinkAfterStyle.position;
-              after.style.bottom = navLinkAfterStyle.bottom;
-              after.style.left = navLinkAfterStyle.left;
-              after.style.width = navLinkHoverAfterStyle.width;
-              after.style.height = navLinkAfterStyle.height;
-              after.style.backgroundColor = navLinkAfterStyle.backgroundColor;
-              after.style.transition = navLinkAfterStyle.transition;
-              after.style.transform = navLinkAfterStyle.transform;
-              e.target.appendChild(after);
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.color = isScrolled ? '#333' : 'white';
-              e.target.style.transform = 'translateY(0)';
-              const after = e.target.querySelector('div');
-              if (after) after.remove();
-            }}
-          >
-            ABOUT US
-          </a>
-          <a 
-            href="#testimonials" 
-            onClick={(e) => scrollToSection('testimonials', e)}
-            style={navLinkStyle}
-            onMouseEnter={(e) => {
-              e.target.style.color = navLinkHoverStyle.color;
-              e.target.style.transform = navLinkHoverStyle.transform;
-              const after = document.createElement('div');
-              after.style.position = navLinkAfterStyle.position;
-              after.style.bottom = navLinkAfterStyle.bottom;
-              after.style.left = navLinkAfterStyle.left;
-              after.style.width = navLinkHoverAfterStyle.width;
-              after.style.height = navLinkAfterStyle.height;
-              after.style.backgroundColor = navLinkAfterStyle.backgroundColor;
-              after.style.transition = navLinkAfterStyle.transition;
-              after.style.transform = navLinkAfterStyle.transform;
-              e.target.appendChild(after);
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.color = isScrolled ? '#333' : 'white';
-              e.target.style.transform = 'translateY(0)';
-              const after = e.target.querySelector('div');
-              if (after) after.remove();
-            }}
-          >
-            TESTIMONIALS
-          </a>
-          <a 
-            href="#faq" 
-            onClick={(e) => scrollToSection('faq', e)}
-            style={navLinkStyle}
-            onMouseEnter={(e) => {
-              e.target.style.color = navLinkHoverStyle.color;
-              e.target.style.transform = navLinkHoverStyle.transform;
-              const after = document.createElement('div');
-              after.style.position = navLinkAfterStyle.position;
-              after.style.bottom = navLinkAfterStyle.bottom;
-              after.style.left = navLinkAfterStyle.left;
-              after.style.width = navLinkHoverAfterStyle.width;
-              after.style.height = navLinkAfterStyle.height;
-              after.style.backgroundColor = navLinkAfterStyle.backgroundColor;
-              after.style.transition = navLinkAfterStyle.transition;
-              after.style.transform = navLinkAfterStyle.transform;
-              e.target.appendChild(after);
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.color = isScrolled ? '#333' : 'white';
-              e.target.style.transform = 'translateY(0)';
-              const after = e.target.querySelector('div');
-              if (after) after.remove();
-            }}
-          >
-            FAQ
-          </a>
+          {[
+            { id: 'products', label: 'PRODUCTS' },
+            { id: 'about', label: 'ABOUT US' },
+            { id: 'testimonials', label: 'TESTIMONIALS' },
+            { id: 'faq', label: 'FAQ' }
+          ].map(({ id, label }) => (
+            <a 
+              key={id}
+              href={`#${id}`}
+              onClick={(e) => scrollToSection(id, e)}
+              style={navLinkStyle(activeSection === id)}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = isScrolled ? 'rgba(200, 76, 48, 0.1)' : 'rgba(255, 255, 255, 0.2)';
+                e.target.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                if (activeSection !== id) {
+                  e.target.style.backgroundColor = 'transparent';
+                  e.target.style.transform = 'translateY(0)';
+                }
+              }}
+            >
+              {label}
+            </a>
+          ))}
         </div>
 
-        {/* Right side buttons */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '16px'
-        }}>
-          <a 
-            href="#contact" 
-            onClick={(e) => scrollToSection('contact', e)}
-            style={{
-              border: `2px solid ${isScrolled ? '#dc2626' : 'white'}`,
-              color: isScrolled ? '#dc2626' : 'white',
-              padding: '8px 16px',
-              borderRadius: '999px',
-              textDecoration: 'none',
-              fontSize: '14px',
-              transition: 'all 0.3s ease',
-              fontWeight: '500'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = isScrolled ? '#dc2626' : 'white';
-              e.target.style.color = isScrolled ? 'white' : '#333';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = 'transparent';
-              e.target.style.color = isScrolled ? '#dc2626' : 'white';
-            }}
-          >
-            Contact Us
-          </a>
-          <a
-            href="https://wa.me/your-number"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              color: isScrolled ? '#333' : 'white',
-              fontSize: '24px',
-              textDecoration: 'none'
-            }}
-          >
-          </a>
-        </div>
+        {/* Contact Button */}
+        <a
+          href="https://wa.me/1234567890"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={buttonStyle}
+          onMouseEnter={(e) => {
+            e.target.style.transform = 'translateY(-2px)';
+            e.target.style.boxShadow = '0 6px 16px rgba(200, 76, 48, 0.4)';
+            e.target.style.backgroundColor = '#D65A3E';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = 'translateY(0)';
+            e.target.style.boxShadow = '0 4px 12px rgba(200, 76, 48, 0.3)';
+            e.target.style.backgroundColor = '#C84C30';
+          }}
+        >
+          <FaWhatsapp size={20} />
+          Contact Us
+        </a>
       </div>
     </nav>
   );

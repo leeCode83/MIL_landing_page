@@ -1,8 +1,33 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
 import { StarIcon as StarOutlineIcon } from '@heroicons/react/24/outline';
 
-const TestimonialCard = ({ testimonial }) => {
+const TestimonialCard = ({ testimonial, delay }) => {
+  const cardRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(cardRef.current);
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return () => {
+      if (cardRef.current) {
+        observer.unobserve(cardRef.current);
+      }
+    };
+  }, []);
+
   const cardStyle = {
     backgroundColor: 'white',
     borderRadius: '12px',
@@ -12,8 +37,11 @@ const TestimonialCard = ({ testimonial }) => {
     breakInside: 'avoid',
     pageBreakInside: 'avoid',
     marginBottom: '24px',
-    transition: 'transform 0.3s ease',
+    transition: 'all 0.5s ease',
     cursor: 'pointer',
+    opacity: isVisible ? 1 : 0,
+    transform: isVisible ? 'translateY(0)' : 'translateY(50px)',
+    transitionDelay: `${delay * 0.1}s`
   };
 
   const imageStyle = {
@@ -21,7 +49,9 @@ const TestimonialCard = ({ testimonial }) => {
     height: '80px',
     borderRadius: '50%',
     objectFit: 'cover',
-    marginBottom: '16px'
+    marginBottom: '16px',
+    transition: 'transform 0.3s ease',
+    border: '3px solid #C84C30'
   };
 
   const nameStyle = {
@@ -60,12 +90,19 @@ const TestimonialCard = ({ testimonial }) => {
 
   return (
     <div 
+      ref={cardRef}
       style={cardStyle}
       onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-8px)';
+        e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
+        e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)';
+        const img = e.currentTarget.querySelector('img');
+        if (img) img.style.transform = 'scale(1.1)';
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.transform = 'translateY(0) scale(1)';
+        e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+        const img = e.currentTarget.querySelector('img');
+        if (img) img.style.transform = 'scale(1)';
       }}
     >
       <img src={testimonial.image} alt={testimonial.name} style={imageStyle} />
@@ -78,6 +115,31 @@ const TestimonialCard = ({ testimonial }) => {
 };
 
 const Testimonials = () => {
+  const [isHeaderVisible, setIsHeaderVisible] = useState(false);
+  const headerRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsHeaderVisible(true);
+          observer.unobserve(headerRef.current);
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    if (headerRef.current) {
+      observer.observe(headerRef.current);
+    }
+
+    return () => {
+      if (headerRef.current) {
+        observer.unobserve(headerRef.current);
+      }
+    };
+  }, []);
+
   const testimonials = [
     {
       name: "Sarah Chen",
@@ -140,7 +202,8 @@ const Testimonials = () => {
   const sectionStyle = {
     padding: '80px 20px',
     backgroundColor: '#EEF2FF',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    position: 'relative'
   };
 
   const containerStyle = {
@@ -154,7 +217,10 @@ const Testimonials = () => {
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: '60px',
-    color: '#C84C30'
+    color: '#C84C30',
+    opacity: isHeaderVisible ? 1 : 0,
+    transform: isHeaderVisible ? 'translateY(0)' : 'translateY(30px)',
+    transition: 'all 0.6s ease'
   };
 
   const masonryStyle = {
@@ -172,15 +238,29 @@ const Testimonials = () => {
     }
   };
 
+  // Add decorative elements
+  const decorStyle = {
+    position: 'absolute',
+    width: '200px',
+    height: '200px',
+    borderRadius: '50%',
+    background: 'linear-gradient(45deg, rgba(200, 76, 48, 0.1), rgba(200, 76, 48, 0.05))',
+    filter: 'blur(40px)',
+    zIndex: 0
+  };
+
   return (
     <section id="testimonials" style={sectionStyle}>
+      <div style={{ ...decorStyle, top: '5%', left: '5%' }} />
+      <div style={{ ...decorStyle, bottom: '5%', right: '5%' }} />
       <div style={containerStyle}>
-        <h2 style={titleStyle}>What Our Customers Say</h2>
+        <h2 ref={headerRef} style={titleStyle}>What Our Customers Say</h2>
         <div style={masonryStyle}>
           {testimonials.map((testimonial, index) => (
             <TestimonialCard 
               key={index} 
               testimonial={testimonial}
+              delay={index}
             />
           ))}
         </div>

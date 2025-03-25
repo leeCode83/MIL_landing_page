@@ -36,7 +36,7 @@ const Products = () => {
 
   const sectionStyle = {
     minHeight: '100vh',
-    backgroundColor: '#ECFDF5',
+    backgroundColor: '#FFFFFF',
     position: 'relative',
     overflow: 'hidden'
   };
@@ -44,10 +44,10 @@ const Products = () => {
   const containerStyle = {
     maxWidth: '1400px',
     margin: '0 auto',
-    padding: '80px 20px',
+    padding: '20px 20px',
     display: 'flex',
     flexDirection: 'column',
-    gap: '120px'
+    animation: 'fadeInUp 0.8s ease forwards'
   };
 
   const titleStyle = {
